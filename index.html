@@ -1,11 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html>
   <head>
-    <title>My Website</title>
+    <title>Daniel Khrapko</title>
+    <link rel = "stylesheet" type = "text/css" href = "index.css">
+    <script src = "script.js"></script>
+    <link rel = "icon" href = "java.png">
   </head>
   
   <body>
-    <p>Test of website for d.i.k</p>
+    <div id = "title">Daniel Khrapko</div>
+
+    <div id = "page">
+      <div id = "menu">
+        <div class = "tab" id = "about" onclick = "showTab('about')">About</div>
+        <div class = "tab" id = "projects" onclick = "showTab('projects')">Projects</div>
+        <div class = "tab" id = "contact" onclick = "showTab('contact')">Contact</div>
+      </div>
+      <div class = "hidden content">
+        My name is Daniel Khrapko and I am a senior in high school.
+        I like to do programming.
+        I'm pretty good at Java and HTML/CSS.
+      </div>
+
+      <div class = "hidden content">
+        Projects
+      </div>
+
+      <div class = "hidden content">
+        Contact
+      </div>
+    </div>
   </body>
 </html>

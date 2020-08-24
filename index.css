@@ -1,0 +1,47 @@
+body {
+    font-family: Arial;
+    background-color: #EEEEEE;
+    color: #555555;
+}
+
+#title {
+    font-size: 24px;
+    text-align: center;
+    padding: 25px 0px;
+}
+
+#page {
+    width: 1200px;
+    height: 800px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    background-color: #FFFFFF;
+}
+
+#menu {
+    width: 1200px;
+    display: inline-flex;
+    background-color: #E5E5E5;
+}
+
+.tab {
+    text-align: center;
+    padding: 12px 0px;
+    width: 75px;
+    font-size: 14px;
+}
+
+.tab:hover {
+    background-color: #DDDDDD;
+    cursor: pointer;
+}
+
+.content {
+    margin-left: 15px;
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+.hidden {
+    display: none;
+}
