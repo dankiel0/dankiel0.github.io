@@ -1,0 +1,69 @@
+body {
+    background-color: #EEEEEE;
+    color: #555555;
+    font-family: monospace;
+    font-size: 0;
+}
+
+#page {
+    background-color: #FFFFFF;
+
+    width: 80vw;
+    height: 128vh;
+
+    position: relative;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 3%;
+}
+
+img {
+    width: 28.47%;
+    height: 28.47%;
+}
+
+#name {
+    margin: 1% 0%;
+    text-align: center;
+    font-size: 2.75vh;
+    font-weight: 300;
+}
+
+#nav-bar {
+    background-color: #FFFEF5;
+}
+
+.tab {
+    font-size: 1.75vh;
+    display: inline-block;
+    padding: 1% 1%;
+}
+
+.tab:hover {
+    cursor: pointer;
+}
+
+.content {
+    margin-left: 2%;
+    margin-top: 1.5%;
+    font-size: 1.75vh;
+    display: none;
+}
+
+.right {
+    float: right;
+    margin-right: 2.6vw;
+}
+
+.left {
+    float: left;
+}
+
+.paragraph {
+    width: 52vw;
+    height: 31vh;
+}
+
+.margin-bottom {
+    padding-bottom: 41.5vh;
+}

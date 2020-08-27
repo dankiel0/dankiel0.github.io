@@ -3,32 +3,54 @@
 <html>
   <head>
     <title>Daniel Khrapko</title>
-    <link rel = "stylesheet" type = "text/css" href = "index.css">
+    <link rel = "stylesheet" type = "text/css" href = "style.css">
     <script src = "script.js"></script>
-    <link rel = "icon" href = "java.png">
   </head>
-  
-  <body>
-    <div id = "title">Daniel Khrapko</div>
 
+  <body onload = "onLoad()">
+    <div id = "name">Daniel Khrapko</div>
     <div id = "page">
-      <div id = "menu">
-        <div class = "tab" id = "about" onclick = "showTab('about')">About</div>
-        <div class = "tab" id = "projects" onclick = "showTab('projects')">Projects</div>
-        <div class = "tab" id = "contact" onclick = "showTab('contact')">Contact</div>
-      </div>
-      <div class = "hidden content">
-        My name is Daniel Khrapko and I am a senior in high school.
-        I like to do programming.
-        I'm pretty good at Java and HTML/CSS.
+      <div id = "nav-bar">
+        <div id = "about-tab" class = "tab" onclick = "onClick('about')">About</div>
+        <div id = "projects-tab" class = "tab" onclick = "onClick('projects')">Projects</div>
+        <div id = "contact-tab" class = "tab" onclick = "onClick('contact')">Contact</div>
       </div>
 
-      <div class = "hidden content">
-        Projects
+      <div id = "about-content" class = "content">
+        My name is Daniel Khrapko.
+        <br><br>
+        From time to time, I take on special software/development projects.
       </div>
+      <div id = "projects-content" class = "content">
+        <div class = "margin-bottom">
+          <div class = "paragraph left">
+            <strong>GPA Calculator</strong>
+            <br><br>
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?            
+          </div>
+          <img src = "img/blank_gpa_calculator.png" id = "gpa-calc-pic" class = "right">
+        </div>
+        
+        <div class = "margin-bottom">
+          <div class = "paragraph left">
+            <strong>GPA Calculator</strong>
+            <br><br>
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?            
+          </div>
+          <img src = "img/blank_gpa_calculator.png" id = "gpa-calc-pic" class = "right">
+        </div>
 
-      <div class = "hidden content">
-        Contact
+        <div>
+          <div class = "paragraph left">
+            <strong>GPA Calculator</strong>
+            <br><br>
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?            
+          </div>
+          <img src = "img/blank_gpa_calculator.png" id = "gpa-calc-pic" class = "right">
+        </div>
+      </div>
+      <div id = "contact-content" class = "content">
+        E-mail: khrapkodaniel@gmail.com
       </div>
     </div>
   </body>
