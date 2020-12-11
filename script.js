@@ -18,7 +18,7 @@ function onLoad() {
     var tabName = url.searchParams.get('z');
     
     if(tabName === null)
-        tabName = "about";
+        tabName = "projects";
     
     document.getElementById(tabName + "-tab").style.backgroundColor = "#FFFBD4";
     document.getElementById(tabName + "-content").style.display = "inherit";

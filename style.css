@@ -9,17 +9,12 @@ body {
     background-color: #FFFFFF;
 
     width: 80vw;
-    height: 128vh;
+    height: 250vh;
 
     position: relative;
     margin-left: 50%;
     transform: translateX(-50%);
     margin-bottom: 3%;
-}
-
-img {
-    width: 28.47%;
-    height: 28.47%;
 }
 
 #name {
