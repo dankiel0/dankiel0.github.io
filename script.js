@@ -4,6 +4,13 @@ function onClick(tabName) {
     
     for(var i = 0; i < document.getElementsByClassName("content").length; i++)
         document.getElementsByClassName("content")[i].style.display = "none";
+
+    if(tabName === "about")
+        document.getElementById("about-content").style.padding = "0% 0% 45% 0%";
+    if(tabName === "downloads")
+        document.getElementById("downloads-content").style.padding = "0% 0% 20% 0%";
+    if(tabName === "contact")
+        document.getElementById("contact-content").style.padding = "0% 0% 50% 0%";
     
     document.getElementById(tabName + "-tab").style.backgroundColor = "#FFFBD4";
     document.getElementById(tabName + "-content").style.display = "inherit";
