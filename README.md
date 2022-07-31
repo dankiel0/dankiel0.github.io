@@ -1,3 +1,3 @@
-# danielivan020.github.io
+# dankiel0.github.io
 
 Personal website that presents my development projects
