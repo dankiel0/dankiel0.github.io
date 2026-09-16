@@ -1,87 +1,567 @@
 <!DOCTYPE html>
+<html lang="en">
 
-<html>
-  <head>
-    <title>Daniel Khrapko</title>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LiftLogs · Training data pipeline</title>
+  <meta name="description"
+    content="A personal pipeline that turns iPhone workout notes into a live training dashboard, built on Google Cloud Storage, BigQuery, and Data Studio.">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ---------- Tokens ---------- */
+    :root {
+      --concrete: #E4E7E5;
+      /* page: gym floor */
+      --paper: #F7F8F7;
+      /* raised surfaces */
+      --iron: #1D2731;
+      /* text, bar steel */
+      --iron-2: #4F5B66;
+      /* secondary text */
+      --rule: #C5CBC8;
+      --plate: #2A5AA8;
+      /* blue plates */
+      --collar: #E2B007;
+      /* yellow plates */
+      --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+      --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
 
-  <body>
-    <div class="page-title">Hey! My name is Daniel Khrapko</div>
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --concrete: #151B21;
+        --paper: #1D252D;
+        --iron: #E6EAEC;
+        --iron-2: #A3AEB7;
+        --rule: #34404A;
+        --plate: #6C9BE8;
+        --collar: #F0C23B;
+      }
+    }
 
-    <div class="sub-title">
-      I'm a budding software engineer at Rutgers University in New Brunswick.
-      This site is a visual collection of some of my projects. Welcome!
+    :root[data-theme="dark"] {
+      --concrete: #151B21;
+      --paper: #1D252D;
+      --iron: #E6EAEC;
+      --iron-2: #A3AEB7;
+      --rule: #34404A;
+      --plate: #6C9BE8;
+      --collar: #F0C23B;
+    }
+
+    /* ---------- Base ---------- */
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--concrete);
+      color: var(--iron);
+      font: 400 1.0625rem/1.6 var(--body);
+    }
+
+    img,
+    iframe {
+      max-width: 100%;
+    }
+
+    a {
+      color: var(--plate);
+      text-underline-offset: 3px;
+    }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--plate);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .wrap {
+      width: min(1120px, 100% - 2.5rem);
+      margin-inline: auto;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--display);
+      line-height: 1;
+      margin: 0;
+    }
+
+    p {
+      margin: 0 0 1rem;
+      max-width: 66ch;
+    }
+
+    /* ---------- Header / hero ---------- */
+    header {
+      padding: 3.5rem 0 2rem;
+    }
+
+    .rack {
+      /* a dumbbell rack: small dumbbells side by side, filled to width by script */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 30px;
+      margin-bottom: 1.75rem;
+      overflow: hidden;
+    }
+
+    .db {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .db span {
+      display: block;
+      border-radius: 2px;
+      background: var(--db-color);
+    }
+
+    .db .outer {
+      width: 6px;
+      height: 28px;
+    }
+
+    .db .inner {
+      width: 5px;
+      height: 20px;
+    }
+
+    .db .handle {
+      width: 14px;
+      height: 4px;
+      background: var(--iron);
+      border-radius: 0;
+    }
+
+    .db:nth-child(odd) {
+      --db-color: var(--plate);
+    }
+
+    .db:nth-child(even) {
+      --db-color: var(--collar);
+    }
+
+    h1 {
+      font-size: clamp(3.25rem, 11vw, 7.5rem);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+
+    .lede {
+      font-size: clamp(1.125rem, 2.2vw, 1.3rem);
+      color: var(--iron-2);
+      margin-top: 1.25rem;
+      max-width: 52ch;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: .6rem 1.1rem;
+      font: 600 .95rem/1 var(--body);
+      text-decoration: none;
+      border: 2px solid var(--iron);
+      color: var(--iron);
+      border-radius: 4px;
+    }
+
+    .btn.primary {
+      background: var(--iron);
+      color: var(--concrete);
+    }
+
+    .btn:hover {
+      background: var(--plate);
+      border-color: var(--plate);
+      color: #fff;
+    }
+
+    /* ---------- Dashboard ---------- */
+    .dash {
+      padding: 1rem 0 3.5rem;
+    }
+
+    .frame {
+      background: var(--paper);
+      border: 2px solid var(--iron);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .frame-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .5rem;
+      padding: .5rem 1rem;
+      border-bottom: 2px solid var(--iron);
+      font-size: .9rem;
+    }
+
+    .frame-head strong {
+      font-family: var(--display);
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .live {
+      color: var(--iron-2);
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+    }
+
+    .live::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2E9E5B;
+    }
+
+    .embed {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #fff;
+    }
+
+    @media (min-width: 800px) {
+      .embed {
+        aspect-ratio: 16 / 10;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .embed {
+        aspect-ratio: auto;
+        height: 640px;
+      }
+    }
+
+    .embed iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .fallback {
+      font-size: .9rem;
+      color: var(--iron-2);
+      margin-top: .75rem;
+    }
+
+    /* ---------- Pipeline (a true sequence, so it is numbered) ---------- */
+    section h2 {
+      font-size: clamp(2rem, 5vw, 2.9rem);
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+
+    .pipeline {
+      padding: 3rem 0;
+      border-top: 2px solid var(--iron);
+    }
+
+    .steps {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      counter-reset: step;
+    }
+
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding: 0 1.25rem 0 0;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      border-radius: 50%;
+      background: var(--plate);
+      color: #fff;
+      font: 800 1.35rem/1 var(--display);
+      position: relative;
+      z-index: 1;
+    }
+
+    .steps li::after {
+      /* the bar connecting each plate */
+      content: "";
+      position: absolute;
+      top: 1.2rem;
+      left: 2.6rem;
+      right: 0;
+      height: 4px;
+      background: var(--iron);
+    }
+
+    .steps li:last-child::after {
+      display: none;
+    }
+
+    .steps h3 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin: .9rem 0 .35rem;
+    }
+
+    .steps p {
+      font-size: .95rem;
+      color: var(--iron-2);
+      margin: 0;
+    }
+
+    .steps code {
+      font-size: .85em;
+    }
+
+    @media (max-width: 780px) {
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .steps li {
+        padding: 0 0 0 3.6rem;
+      }
+
+      .steps li::before {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+
+      .steps li::after {
+        top: 2.6rem;
+        left: 1.2rem;
+        right: auto;
+        width: 4px;
+        height: calc(100% - 1.1rem);
+      }
+
+      .steps h3 {
+        margin-top: .35rem;
+      }
+    }
+
+    /* ---------- Metrics ---------- */
+    .metrics {
+      padding: 3rem 0;
+      border-top: 2px solid var(--iron);
+    }
+
+    .metric-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.75rem 2.5rem;
+    }
+
+    .metric-list div {
+      border-left: 4px solid var(--plate);
+      padding-left: 1rem;
+    }
+
+    .metric-list h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: .3rem;
+    }
+
+    .metric-list p {
+      font-size: .95rem;
+      color: var(--iron-2);
+      margin: 0;
+    }
+
+    /* ---------- Stack + footer ---------- */
+    .stack {
+      padding: 3rem 0;
+      border-top: 2px solid var(--iron);
+    }
+
+    .stack ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+
+    .stack li {
+      padding: .35rem .8rem;
+      border: 1.5px solid var(--rule);
+      border-radius: 999px;
+      font-size: .9rem;
+      background: var(--paper);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: var(--paper);
+      padding: .1em .35em;
+      border-radius: 3px;
+    }
+
+    footer {
+      padding: 2rem 0 3rem;
+      border-top: 2px solid var(--iron);
+      font-size: .9rem;
+      color: var(--iron-2);
+    }
+
+    footer p {
+      max-width: none;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="wrap">
+    <div class="rack" id="rack" aria-hidden="true"></div>
+    <script>
+      (function () {
+        var rack = document.getElementById('rack');
+        var DB_WIDTH = 42;   // one dumbbell is ~42px wide
+        var MIN_GAP = 14;    // minimum space between dumbbells
+        var DB = '<div class="db"><span class="outer"></span><span class="inner"></span>' +
+          '<span class="handle"></span><span class="inner"></span><span class="outer"></span></div>';
+        function fill() {
+          var n = Math.max(1, Math.floor((rack.clientWidth + MIN_GAP) / (DB_WIDTH + MIN_GAP)));
+          if (rack.childElementCount !== n) rack.innerHTML = DB.repeat(n);
+        }
+        fill();
+        window.addEventListener('resize', fill);
+      })();
+    </script>
+    <h1>LiftLogs</h1>
+    <p class="lede">I log every workout in Apple Notes. This project turns those notes into a live dashboard of my
+      training volume, frequency, and progress, with no spreadsheets or manual entry.</p>
+    <div class="links">
+      <a class="btn primary" href="https://gitlab.com/khrapkodaniel/liftlogs">View the code</a>
+      <a class="btn" href="https://lookerstudio.google.com/reporting/257d5d3f-12df-48d3-aee1-e14ea6bd2913">Open full
+        dashboard</a>
     </div>
+  </header>
 
-    <div>
-      <a href="dkhrapko0@gmail.com" target="_blank">
-        <img src="assets/email.png" alt="email icon" class="icon" />
-      </a>
-
-      <a href="https://github.com/dankiel0" target="_blank">
-        <img src="assets/github.png" alt="github icon" class="icon" />
-      </a>
-
-      <a href="https://www.linkedin.com/in/daniel-khrapko-4abaa321a/" target="_blank">
-        <img src="assets/linkedin.png" alt="linkedin icon" class="icon" />
-      </a>
-    </div>
-    
-    <div class="project-container">
-      <img src="assets/project_image_temp.png" alt="project image" />
-
-      <div class="project-description-container">
-        <div class="project-title">Chess Insight</div>
-        <div class="sub-title">ReactJS</div>
-        <div class="project-description">
-          This is a program designed to help the user learn the fundamentals of
-          Chess using a friendly user interface to teach the user in a
-          straightfoward and clear manner.
+  <main>
+    <section class="dash wrap" aria-labelledby="dash-title">
+      <div class="frame">
+        <div class="frame-head">
+          <strong id="dash-title">Training dashboard</strong>
+          <span class="live">Live data from BigQuery</span>
+        </div>
+        <div class="embed">
+          <iframe src="https://datastudio.google.com/embed/reporting/257d5d3f-12df-48d3-aee1-e14ea6bd2913/page/bFB4F"
+            title="LiftLogs training dashboard" loading="lazy" allowfullscreen
+            sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
         </div>
       </div>
-    </div>
-    
-    <div class="project-container">
-      <img src="assets/project_image_temp.png" alt="project image" />
+      <p class="fallback">Dashboard not loading? <a
+          href="https://lookerstudio.google.com/reporting/257d5d3f-12df-48d3-aee1-e14ea6bd2913">Open it directly in Data
+          Studio</a>.</p>
+    </section>
 
-      <div class="project-description-container">
-        <div class="project-title">Kinesis</div>
-        <div class="sub-title">ReactJS</div>
-        <div class="project-description">
-          This is a program designed to help the user learn the fundamentals of
-          Chess using a friendly user interface to teach the user in a
-          straightfoward and clear manner.
+    <section class="pipeline wrap" aria-labelledby="pipe-title">
+      <h2 id="pipe-title">How a workout gets here</h2>
+      <ol class="steps">
+        <li>
+          <h3>Write it down</h3>
+          <p>I log sets and reps in Apple Notes at the gym. An iOS Shortcut runs when I close Notes and posts any new
+            workout to an HTTP endpoint.</p>
+        </li>
+        <li>
+          <h3>Land in storage</h3>
+          <p>Each note is saved as a raw file in a Google Cloud Storage bucket, so the original text is always kept.</p>
+        </li>
+        <li>
+          <h3>Clean and model</h3>
+          <p>BigQuery loads the raw data and refines it through bronze, silver, and gold layers. Views like
+            <code>v_workout_summary</code> feed the dashboard.</p>
+        </li>
+        <li>
+          <h3>See the trend</h3>
+          <p>Data Studio reads the gold views and charts weekly volume and workout frequency, refreshing as new sessions
+            arrive.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="metrics wrap" aria-labelledby="metrics-title">
+      <h2 id="metrics-title">What it tracks</h2>
+      <div class="metric-list">
+        <div>
+          <h3>Weekly volume</h3>
+          <p>Total pounds lifted per week (weight × reps × sets), grouped by Monday-start weeks.</p>
+        </div>
+        <div>
+          <h3>Training frequency</h3>
+          <p>Sessions per week, to spot consistent blocks and missed weeks.</p>
+        </div>
+        <div>
+          <h3>Session detail</h3>
+          <p>Duration, exercise count, and working sets for every workout.</p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="project-container">
-      <img src="assets/project_image_temp.png" alt="project image" />
+    <section class="stack wrap" aria-labelledby="stack-title">
+      <h2 id="stack-title">Built with</h2>
+      <ul>
+        <li>iOS Shortcuts</li>
+        <li>Apple Notes</li>
+        <li>Google Cloud Storage</li>
+        <li>BigQuery</li>
+        <li>SQL</li>
+        <li>Data Studio</li>
+        <li>GitHub Pages</li>
+      </ul>
+    </section>
+  </main>
 
-      <div class="project-description-container">
-        <div class="project-title">APlusPath</div>
-        <div class="sub-title">ReactJS</div>
-        <div class="project-description">
-          This is a program designed to help the user learn the fundamentals of
-          Chess using a friendly user interface to teach the user in a
-          straightfoward and clear manner.
-        </div>
-      </div>
-    </div>
+  <footer class="wrap">
+    <p>Built by Daniel Khrapko. Data comes from my own training log and updates automatically.</p>
+  </footer>
 
-    <div class="project-container">
-      <img src="assets/project_image_temp.png" alt="project image" />
+</body>
 
-      <div class="project-description-container">
-        <div class="project-title">Miscellaneous</div>
-        <div class="sub-title">ReactJS</div>
-        <div class="project-description">
-          This is a program designed to help the user learn the fundamentals of
-          Chess using a friendly user interface to teach the user in a
-          straightfoward and clear manner.
-        </div>
-      </div>
-    </div>
-  </body>
 </html>
